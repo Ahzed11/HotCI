@@ -26,12 +26,10 @@ jobs:
         rebar3-version: '3.22.1'
 
     - name: Run validation checks and build releases
-      working-directory: erlang
+      working-directory: .
       if: ${{steps.check.outputs.hasTags == 'true'}}
       run: |
-        git config --global --add safe.directory /__w/${{vars.RELNAME}}/${{vars.RELNAME}}
-
-        ../scripts/check_versions ${{vars.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
+        ./scripts/check_versions ${{vars.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
         cat vsn.log
         cat vsn.log | awk '/Generated appup/ { appup=1 }
                            /relup successfully created!/ { relup=1 }
@@ -44,7 +42,7 @@ jobs:
 
       
     - name: Test upgrade and downgrade of the application
-      working-directory: erlang
+      working-directory: .
       if: ${{steps.check.outputs.hasTags == 'true'}}
       run: |
         mkdir relupci
@@ -67,5 +65,5 @@ jobs:
       if: always()
       with:
         name: results
-        path: ./erlang/test/results
+        path: ./test/results
         retention-days: 30

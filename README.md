@@ -12,23 +12,13 @@ The main goal is to increase the developers' confidence when writing code that l
 
 ### New project
 
-Using this template with a new project is simple and is done through the following steps:
-
-1. Click on the `Use this template` button located on the top right of this repository's page.
-1. Click on `create a new repository`
-1. Configure your new repository
-1. Clone your repository
-1. Navigate inside it
-1. Run `rebar3 new release <release_name>` to create a new Erlang/OTP release
-1. Run `rm <release_name>/rebar.config`
-1. Run `mv <release_name>/* erlang/ && rm <release_name>`
-1. Modify `erlang/rebar.config` and replace `release_name` with the name of your release
+1. `git clone git@github.com:Ahzed11/erlang-ci-cd.git`
+1. `mv erlang-ci-cd <project-name>`
+1. `rebar3 new release <project-name>`
 
 ### Existing project
 
-Using this template with an existing project can be more complex because, depending on the structure of your project, more or less steps might be required.
-
-1. Move all the files related to your project in the `erlang` folder
+1. Move all the files of the release in the root of this repository
 1. Merge your `rebar.config` with the one provided in this template.
 
 ## Configuration
@@ -107,7 +97,7 @@ The `publish-tarball` workflow builds and uploads a tarball of the OTP release, 
 
 ### File structure
 
-1. The `erlang` directory **must** contain all the files of your release
+1. The root directory of this repository must be the root directory of your release
 
 ### Versioning
 
