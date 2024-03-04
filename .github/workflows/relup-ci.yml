@@ -31,7 +31,7 @@ jobs:
       run: |
         ./scripts/check_versions ${{vars.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
         cat vsn.log
-        cat vsn.log | awk '/Generated appup/ { appup=1 }
+        cat vsn.log | awk '/Generated appup/ || /Compiling .*\.appup\.src/ { appup=1 }
                            /relup successfully created!/ { relup=1 }
                            END { if (!appup) { print "appup missing"; exit 1}
                                  if (!relup) { print "relup missing"; exit 1} }'

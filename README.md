@@ -97,7 +97,8 @@ The `publish-tarball` workflow builds and uploads a tarball of the OTP release, 
 
 ### File structure
 
-1. The root directory of this repository must be the root directory of your release
+1. The `erlang` directory **must** contain all the files of your release
+1. Hand-crafted appups must reside under `apps/<app_name>/src/<app_name>.appup.src`
 
 ### Versioning
 
