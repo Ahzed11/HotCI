@@ -33,17 +33,20 @@ jobs:
         cat vsn.log
         cat vsn.log | awk '/Generated appup/ || /Compiling .*\.appup\.src/ { appup=1 }
                            /relup successfully created!/ { relup=1 }
+                           /RESTART version bumped, ignoring relup check./ { restart=1 }
                            END { if (!appup) { print "appup missing"; exit 1}
-                                 if (!relup) { print "relup missing"; exit 1} }'
+                                 if (!relup && !restart) { print "relup missing"; exit 1} }'
         OLD=$(cat vsn.log | awk '/OLD:/ {print $2}')
         NEW=$(cat vsn.log | awk '/NEW:/ {print $2}')
+        IS_RESTART=$(cat vsn.log | awk '/RESTART version bumped, ignoring relup check./ {found=1; exit} END {if(found) print "true"; else print "false"}')
         echo "OLD_TAR=$OLD" >> $GITHUB_ENV
         echo "NEW_TAR=$NEW" >> $GITHUB_ENV
+        echo "IS_RESTART=$IS_RESTART" >> $GITHUB_ENV
 
       
     - name: Test upgrade and downgrade of the application
       working-directory: .
-      if: ${{steps.check.outputs.hasTags == 'true'}}
+      if: ${{steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
       run: |
         mkdir relupci
         mkdir relupci/releases/
@@ -62,7 +65,7 @@ jobs:
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
-      if: always()
+      if: ${{steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
       with:
         name: results
         path: ./test/results
