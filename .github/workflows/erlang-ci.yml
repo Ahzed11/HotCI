@@ -8,6 +8,9 @@ on:
 
 permissions:
   contents: read
+  issues: read
+  checks: write
+  pull-requests: write
 
 jobs:
   build:
@@ -36,3 +39,10 @@ jobs:
         path: ./results
         compression-level: 9
         retention-days: 30
+    - name: Erlang CI results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        check_name: Erlang CI results
+        files: |
+          ./results/**/*.xml
