@@ -6,6 +6,9 @@ on:
 
 permissions:
   contents: read
+  issues: read
+  checks: write
+  pull-requests: write
 
 jobs:
   versions:
@@ -59,15 +62,23 @@ jobs:
         RELEASE_DIR=$(readlink -f relupci/releases/)
         echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{vars.RELNAME}}\"}.\n{release_dir, \"$RELEASE_DIR\"}." >> ./test/config.config
 
-        cd test
         mkdir results
-        rebar3 ct --dir . --verbose true --config ./config.config --logdir ./results --label relup-ci
+        rebar3 ct --dir ./test --verbose true --config ./test/config.config --logdir ./results --label relup-ci
+        rm -rf ./results/**/*.tar.gz
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: ${{steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
       with:
         name: relup-ci-results
-        path: ./test/results
+        path: ./results
         compression-level: 9 
         retention-days: 30
+
+    - name: Relup CI results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: ${{steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
+      with:
+        check_name: Relup CI results
+        files: |
+          ./results/**/*.xml
