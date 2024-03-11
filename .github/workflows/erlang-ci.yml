@@ -16,7 +16,7 @@ jobs:
       image: erlang:26.1.2
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Run validation checks
       working-directory: .
       run: rebar3 check
@@ -29,9 +29,10 @@ jobs:
       working-directory: .
       run: rebar3 do release, tar
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: results
+        name: erlang-ci-results
         path: ./results
+        compression-level: 9
         retention-days: 30

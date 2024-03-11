@@ -16,7 +16,7 @@ jobs:
       id: check
       uses: ahzed11/has-tags-action@v1.1
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -64,9 +64,10 @@ jobs:
         rebar3 ct --dir . --verbose true --config ./config.config --logdir ./results --label relup-ci
 
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
       with:
-        name: results
+        name: relup-ci-results
         path: ./test/results
+        compression-level: 9 
         retention-days: 30
