@@ -72,7 +72,7 @@ jobs:
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
-      if: ${{steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
+      if: ${{ always() && steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
       with:
         name: relup-ci-results
         path: ./results
@@ -81,7 +81,7 @@ jobs:
 
     - name: Relup CI results
       uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
+      if: ${{ always() && steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
       with:
         check_name: Relup CI results
         files: |
