@@ -6,7 +6,26 @@ The Erlang CI/CD Template is designed to facilitate Continuous Integration (CI) 
 
 It leverages GitHub Actions to automate tasks such as running unit tests, testing hot code upgrades, and building releases.
 
-The main goal is to increase the developers' confidence when writing code that leverages the hot code upgrade mechanism available in Erlang/OTP.
+The main goal of this template is to increase the developers' confidence when writing code that leverages the hot code upgrade mechanism available in Erlang/OTP.
+
+### Hot code upgrade
+
+Hot code upgrade refers to the process of updating parts of a program without halting its execution. It enables running programs to be patched on-the-fly to add features or fix bugs. This capability is particularly crucial for applications that must consistently deliver reliable results. Examples of systems requiring dynamic software include:
+
+- Banking applications
+- Air traffic control systems
+- Telecommunication systems
+- Databases
+
+However, ensuring the correctness of a hot code upgrade is challenging and complex. Most of the time, people may discourage its use unless it is strictly necessary even though Erlang was built with this functionality in mind from the very beginning. This situation is quite unfortunate and this template aims to address this issue by providing tools to test the deployment of hot code upgrades.
+
+### Continuous integration
+
+Continuous integration (CI) is a set of techniques used in software engineering that involves verifying that each modification made to the codebase does not include any regressions. By running these tests regularly, typically after each commit, the goal is to detect errors as soon as possible.
+
+### Continuous delivery
+
+Continuous Delivery (CD) typically follows continuous integration and triggers the project build upon successful completion of all tests conducted during continuous integration. In contrast to continuous deployment, continuous integration does not include the deployment of the project.
 
 ## Usage
 
