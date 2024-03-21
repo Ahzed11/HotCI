@@ -50,7 +50,7 @@ Set the following [repository variables](https://docs.github.com/en/actions/lear
 |---------------|-------------|--------|----------|
 |`RELNAME`| Name of the release | Used in the github actions to run tests / build the release | yes |
 
-## Keeping workflows up to date
+## Keeping this template up to date
 
 To import the changes made to the *Erlang CI/CD template* into your project, use
 [*template-sync*](https://github.com/coopTilleuls/template-sync):
@@ -70,7 +70,7 @@ To import the changes made to the *Erlang CI/CD template* into your project, use
 
 ### Run unit tests
 
-The `erlang-ci` workflow runs unit tests built with `common_test` located in the `erlang/apps` directory and attempts to build the release.
+The `erlang-ci` workflow runs all the unit tests built with `common_test` located in the `erlang/apps` directory and attempts to build the release.
 
 The results of the tests are uploaded as workflow artifacts.
 
@@ -81,7 +81,7 @@ The results of the tests are uploaded as workflow artifacts.
 
 ### Run hot code upgrade/downgrade tests
 
-The `relup-ci` workflow builds both the previous and the current release and launches the `erlang/test/upgrade_downgrade_SUITE.erl` test suite.
+The `relup-ci` workflow builds both the previous and the current release and launches the [upgrade_downgrade_SUITE](./test/upgrade_downgrade_SUITE.erl) test suite located under the `test` folder.
 
 This test suite leverages the [peer](https://www.erlang.org/doc/man/peer) module to start a Docker container containing both the previous and the latest release. The peer module also allows us to have interactions with the container such as modifiying its state via functions calls and applying upgrades or downgrades.
 
@@ -119,9 +119,13 @@ The `publish-tarball` workflow builds and uploads a tarball of the OTP release, 
 
 ## Constraints
 
+### General constraints
+
+1. You tests **must** be written with `common test`
+
 ### File structure
 
-1. The `erlang` directory **must** contain all the files of your release
+1. Your project **must** follow the structure given by the `rebar3 new release <project-name>` command
 1. Hand-crafted appups must reside under `apps/<app_name>/src/<app_name>.appup.src`
 
 ### Versioning
@@ -138,7 +142,7 @@ The project uses `Smoothver` versioning, tailored for OTP projects. For more det
 
 ## Projects using this template
 
-- [pixelwar](https://github.com/Ahzed11/pixelwar): A small project used to develop and test these workflows
+- [pixelwar](https://github.com/Ahzed11/pixelwar): A small project used to develop and test this template
 
 ## Possible improvements
 
