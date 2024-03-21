@@ -85,18 +85,23 @@ The `relup-ci` workflow builds both the previous and the current release and lau
 
 This test suite leverages the [peer](https://www.erlang.org/doc/man/peer) module to start a Docker container containing both the previous and the latest release. The peer module also allows us to have interactions with the container such as modifiying its state via functions calls and applying upgrades or downgrades.
 
-This suite is divided in multiple cases:
+This test suite is provided with multiple cases running in the following order:
 
-| Test case name | Is implemented ? |
-|----------------|------------------|
-| before_upgrade_case | no |
-| upgrade_case | yes |
-| after_upgrade_case | no |
-| before_downgrade_case | no |
-| downgrade_case | yes |
-| after_downgrade_case | no |
+```mermaid
+flowchart TD
+    A[before_upgrade_case]
+    B(upgrade_case)
+    C[after_upgrade_case]
+    D[before_downgrade_case]
+    E(downgrade_case)
+    F(after_downgrade_case)
 
-Some cases are not implemented because the state modification before and after downgrades/upgrades is project specific.
+    A --> B --> C --> D --> E --> F
+```
+
+The cases that are related to upgrading/downgrading the release are already implemented because upgrading/downgrading a release is a generic operation. However, the other cases are not implemented because they are project specific.
+
+If necessary, you can add or remove cases as you wish. After all, it is just a `common test` suite.
 
 The results of the tests are uploaded as workflow artifacts.
 
