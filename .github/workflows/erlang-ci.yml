@@ -22,12 +22,12 @@ jobs:
     - uses: actions/checkout@v4
     - name: Run validation checks
       working-directory: .
-      run: rebar3 check
+      run: rebar3 do xref, dialyzer
     - name: Run unit tests
       working-directory: .
       run: |
         mkdir results
-        rebar3 ct --dir apps --verbose true --logdir ./results --label erlang-ci --cover true
+        rebar3 do ct --dir apps --verbose true --logdir ./results --label erlang-ci --cover true, cover -v
     - name: Release can be built
       working-directory: .
       run: rebar3 do release, tar
