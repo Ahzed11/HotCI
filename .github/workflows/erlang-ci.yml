@@ -22,7 +22,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Run validation checks
       working-directory: .
-      run: rebar3 check
+      run: rebar3 do xref, dialyzer
     - name: Run unit tests
       working-directory: .
       run: |
