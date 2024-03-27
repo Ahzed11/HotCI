@@ -6,8 +6,6 @@ The Erlang CI/CD Template is designed to facilitate Continuous Integration (CI) 
 
 It leverages GitHub Actions to automate tasks such as running unit tests, testing hot code upgrades, and building releases.
 
-The main goal of this template is to increase the developers' confidence when writing code that leverages the hot code upgrade mechanism available in Erlang/OTP.
-
 ### Hot code upgrade
 
 Hot code upgrade, also known as dynamic software update, refers to the process of updating parts of a program without halting its execution. It enables running programs to be patched on-the-fly to add features or fix bugs. This capability is particularly crucial for applications that must consistently deliver reliable results. Examples of systems requiring dynamic software include:
@@ -19,7 +17,7 @@ Hot code upgrade, also known as dynamic software update, refers to the process o
 
 However, ensuring the correctness of a hot code upgrade can be a challenging and complex task. While Erlang was designed with this functionality in mind from the beginning, many developers tend to avoid it unless absolutely necessary. This reluctance is unfortunate.
 
-This template is designed to boost developers' confidence in utilizing hot code upgrades in Erlang/OTP by offering GitHub workflows specifically crafted to test the deployment of such upgrades.
+This template is designed to boost developers' confidence in utilizing hot code upgrades in Erlang/OTP by offering a GitHub workflow and a `common test` suite specifically crafted to test the deployment of such upgrades.
 
 ### Continuous integration
 
@@ -124,7 +122,7 @@ The `publish-tarball` workflow builds and uploads a tarball of the OTP release, 
 
 #### Triggers
 
-- `push` tag with name `v[0-9]+.[0-9]+.[0-9]+`
+- `push` on tag with a name that matches this regex `v[0-9]+.[0-9]+.[0-9]+`
 
 ## Constraints
 
