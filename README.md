@@ -29,17 +29,48 @@ Continuous Delivery (CD) typically follows continuous integration and triggers t
 
 ## Usage
 
-This template assumes you are familiar with [Erlang's official build tool, rebar3](https://rebar3.org/) and that you have it [installed](https://rebar3.org/docs/getting-started/) on your machine.
+This template assumes that you are familiar with [Erlang's official build tool, rebar3](https://rebar3.org/) and that you have it [installed](https://rebar3.org/docs/getting-started/) on your machine.
 
 ### New project
 
-1. `git clone git@github.com:Ahzed11/erlang-ci-cd.git <project-name>`
-1. `rebar3 new release <project-name>`
+`<project-name>` is the name of the project you want to create.
+
+1. Clone the repository:
+
+    ```sh
+    git clone git@github.com:Ahzed11/erlang-ci-cd.git <project-name>
+    ```
+
+1. Create a new release with `rebar3`
+
+    ```sh
+    rebar3 new release <project-name>
+    ```
+
+1. Navigate into your new project
+
+    ```sh
+    cd <project-name>
+    ```
+
+1. Replace the word `release_name` present in `rebar.config` with the name of your project
+
+    ```sh
+    sed -i -e 's/release_name/<project-name>/g' rebar.config
+    ```
 
 ### Existing project
 
-1. Move all the files of the release in the root of this repository
-1. Merge your `rebar.config` with the one provided in this template.
+The following steps assume that your project was created with `rebar3` and is using its project structure. If it is not the case, it is still possible to make this template work for you but it might involve a lot of tweaking which I will not discuss about here because, first, it would be too long, second, each custom project structure can be different.
+
+Anyway,
+
+1. Merge your repository with this template
+    - Copy the `.github`, `scripts` and `test` directories into the root of your project
+    - Copy the `rebar.config` file into the root of your project
+1. Merge your `rebar.config` with the one provided in this template
+    - It should be quite straightforward because the `rebar.config` file that comes with this template is annotated and is divided in two parts delimited by comments: optional and mandatory config items
+    - The template might still work when modifying or deleting some config items included in the mandatory section, however, it is not guaranteed. You will have to test it by yourself
 
 ## Configuration
 
