@@ -59,6 +59,12 @@ This template assumes that you are familiar with [Erlang's official build tool, 
     sed -i -e 's/release_name/<project-name>/g' rebar.config
     ```
 
+1. Remove the old .git directory and initialize a new repositoy
+
+   ```sh
+    rm -rf .git && git init
+    ```
+
 ### Existing project
 
 The following steps assume that your project was created with `rebar3` and is using its project structure. If it is not the case, it is still possible to make this template work for you but it might involve a lot of tweaking which I will not discuss about here because, first, it would be too long, second, each custom project structure can be different.
