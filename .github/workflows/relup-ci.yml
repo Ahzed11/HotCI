@@ -15,13 +15,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check if a previous tags exists
-      id: check
-      uses: ahzed11/has-tags-action@v1.1
-
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
+    - name: Check if a previous tags exists
+      run: |
+        LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
+        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 
     - uses: erlef/setup-beam@v1
       with:
@@ -30,7 +31,7 @@ jobs:
 
     - name: Run validation checks and build releases
       working-directory: .
-      if: ${{steps.check.outputs.hasTags == 'true'}}
+      if: ${{env.LAST_TAG != ''}}
       run: |
         ./scripts/check_versions ${{vars.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
         cat vsn.log
@@ -49,7 +50,7 @@ jobs:
       
     - name: Test upgrade and downgrade of the application
       working-directory: .
-      if: ${{steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
+      if: ${{env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       run: |
         mkdir relupci
         mkdir relupci/releases/
@@ -67,12 +68,12 @@ jobs:
     
     - name: Remove releases to save space
       working-directory: .
-      if: ${{ always() && steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
+      if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       run: rm -rf ./results/**/*.tar.gz
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
-      if: ${{ always() && steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
+      if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       with:
         name: relup-ci-results
         path: ./results
@@ -81,7 +82,7 @@ jobs:
 
     - name: Relup CI results
       uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ always() && steps.check.outputs.hasTags == 'true' && env.IS_RESTART == 'false'}}
+      if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       with:
         check_name: Relup CI results
         files: |
