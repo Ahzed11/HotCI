@@ -1,8 +1,8 @@
-# Erlang CI/CD template
+# HotCI
 
 ## Overview
 
-The Erlang CI/CD Template is designed to facilitate Continuous Integration (CI) and Continuous Deployment (CD) processes for Erlang/OTP releases.
+The HotCI is designed to facilitate Continuous Integration (CI) and Continuous Deployment (CD) processes for Erlang/OTP releases.
 
 It leverages GitHub Actions to automate tasks such as running unit tests, testing hot code upgrades, and building releases.
 
@@ -38,7 +38,7 @@ This template assumes that you are familiar with [Erlang's official build tool, 
 1. Clone the repository:
 
     ```sh
-    git clone git@github.com:Ahzed11/erlang-ci-cd.git <project-name>
+    git clone git@github.com:Ahzed11/HotCI.git <project-name>
     ```
 
 1. Create a new release with `rebar3`
@@ -90,7 +90,7 @@ Set the following [repository variables](https://docs.github.com/en/actions/lear
 
 ## Keeping this template up to date
 
-To import the changes made to the *Erlang CI/CD template* to your project, use
+To import the changes made to the *HotCI* to your project, use
 [*template-sync*](https://github.com/coopTilleuls/template-sync).
 
  > Template sync is a simple update script that identifies a commit in the template history which is the closest one to your project. Then it squashes all the updates into a commit which will be cherry-picked on the top of your working branch. Therefore you just have to resolve conflicts and work is done! - [Template Sync](https://github.com/coopTilleuls/template-sync)
@@ -100,7 +100,7 @@ To import the changes made to the *Erlang CI/CD template* to your project, use
 1. Run the script to synchronize your project with the latest version of the template:
 
     ```console
-    curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- https://github.com/ahzed11/erlang-ci-cd
+    curl -sSL https://raw.githubusercontent.com/mano-lis/template-sync/main/template-sync.sh | sh -s -- https://github.com/Ahzed11/HotCI
     ```
 
 1. Resolve conflicts, if any
@@ -196,7 +196,7 @@ The essence of this versioning scheme is as follows:
 
 ## Suggestions
 
-Feel free to post your suggestions in the [discussions tab](https://github.com/Ahzed11/erlang-ci-cd/discussions/categories/ideas).
+Feel free to post your suggestions in the [discussions tab](https://github.com/Ahzed11/HotCI/discussions/categories/ideas).
 
 ## Credits
 
