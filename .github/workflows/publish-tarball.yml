@@ -10,20 +10,21 @@ jobs:
     name: Prepare build artifacts
     runs-on: ubuntu-latest
 
-    container:
-      image: erlang:26.1.2
-      options: --user 1001
-
     steps:
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '26'
+          rebar3-version: '3.22.1'
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Get latest release
         id: get-latest-release
         uses: ahzed11/get-latest-release-action@v1.2
         with:
           keepv: false
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Fetch manifest version
         run: |
