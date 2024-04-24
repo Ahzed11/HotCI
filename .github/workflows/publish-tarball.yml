@@ -46,6 +46,7 @@ jobs:
       - name: Build a tarball
         working-directory: .
         run: |
+          RELNAME=$(./scripts/get_release_name ./rebar.config)
           if [ ${{ env.RELUP }} -eq 1 ]; then
             ORIG=$(/usr/bin/git log -1 --format='%H')
             git checkout v${{ env.OLD_VSN }}
@@ -53,14 +54,14 @@ jobs:
             git checkout $ORIG
             rebar3 do clean -a, release
             rebar3 appup generate
-            rebar3 relup -n ${{ vars.RELNAME }} -v ${{ env.VSN }} -u ${{ env.OLD_VSN }}
+            rebar3 relup -n $RELNAME -v ${{ env.VSN }} -u ${{ env.OLD_VSN }}
           else
             rebar3 release
           fi
           rebar3 tar
-          BUILD=$(ls _build/default/rel/${{ vars.RELNAME }}/${{ vars.RELNAME }}-*.tar.gz)
+          BUILD=$(ls _build/default/rel/$RELNAME/$RELNAME-*.tar.gz)
           mkdir ./_artifacts
-          cp $BUILD ./_artifacts/${{ vars.RELNAME }}-${{ env.VSN }}.tar.gz
+          cp $BUILD ./_artifacts/$RELNAME-${{ env.VSN }}.tar.gz
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

@@ -29,11 +29,17 @@ jobs:
         otp-version: '26'
         rebar3-version: '3.22.1'
 
+    - name: Get release name
+      working-directory: .
+      run: |
+        RELNAME=$(./scripts/get_release_name ./rebar.config)
+        echo "RELNAME=$RELNAME" >> $GITHUB_ENV
+
     - name: Run validation checks and build releases
       working-directory: .
       if: ${{env.LAST_TAG != ''}}
       run: |
-        ./scripts/check_versions ${{vars.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
+        ./scripts/check_versions ${{env.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
         cat vsn.log
         cat vsn.log | awk '/Generated appup/ || /Compiling .*\.appup\.src/ { appup=1 }
                            /relup successfully created!/ { relup=1 }
@@ -61,7 +67,7 @@ jobs:
         NEW_TAG=$(echo "${{ env.NEW_TAR }}"  | sed -nr 's/^.*([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz$/\1/p')
 
         RELEASE_DIR=$(readlink -f relupci/releases/)
-        echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{vars.RELNAME}}\"}.\n{release_dir, \"$RELEASE_DIR\"}." >> ./test/config.config
+        echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{env.RELNAME}}\"}.\n{release_dir, \"$RELEASE_DIR\"}." >> ./test/config.config
 
         mkdir results
         rebar3 ct --dir ./test --verbose true --config ./test/config.config --logdir ./results --label relup-ci

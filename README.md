@@ -80,14 +80,6 @@ Anyway,
 
 ## Configuration
 
-### Repository variables
-
-Set the following [repository variables](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-a-repository) up.
-
-| Variable name | Description | Reason | Required |
-|---------------|-------------|--------|----------|
-|`RELNAME`| Name of the release | Used in the github actions to run tests / build the release | yes |
-
 ## Keeping this template up to date
 
 To import the changes made to the *HotCI* to your project, use
