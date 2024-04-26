@@ -180,6 +180,7 @@ The essence of this versioning scheme is as follows:
 ## Projects using this template
 
 - [pixelwar](https://github.com/Ahzed11/pixelwar): A reddit pixelwar "clone" used to develop and test this template
+- [HotCI usage example](https://github.com/Ahzed11/HotCI-usage-example): A step by step example demonstrating HotCI's usage
 
 ## Future work
 
