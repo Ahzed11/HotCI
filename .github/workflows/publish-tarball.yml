@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necessary to get all the commits and tags
       - uses: ./.github/setup-beam
 
       - name: Get latest release
