@@ -28,6 +28,10 @@ jobs:
       run: |
         LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
         echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+    
+    - name: Set check status
+      if: ${{env.LAST_TAG == ''}}
+      run: echo '### No previous version tag, skipped checks' >> $GITHUB_STEP_SUMMARY
 
     - name: Run validation checks and build releases
       working-directory: .
