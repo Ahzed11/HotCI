@@ -11,23 +11,23 @@ permissions:
   pull-requests: write
 
 jobs:
-  versions:
+  upgrade-downgrade-test:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/setup-beam
 
-    - name: Check if a previous tags exists
-      run: |
-        LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
-        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
-
     - name: Get release name
       working-directory: .
       run: |
         RELNAME=$(./scripts/get_release_name ./rebar.config)
         echo "RELNAME=$RELNAME" >> $GITHUB_ENV
+
+    - name: Check if a previous tags exists
+      run: |
+        LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
+        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 
     - name: Run validation checks and build releases
       working-directory: .
