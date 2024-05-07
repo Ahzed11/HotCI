@@ -16,18 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+    - uses: ./.github/setup-beam
 
     - name: Check if a previous tags exists
       run: |
         LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
         echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
-
-    - uses: erlef/setup-beam@v1
-      with:
-        otp-version: '26'
-        rebar3-version: '3.22.1'
 
     - name: Get release name
       working-directory: .
@@ -76,20 +70,8 @@ jobs:
       working-directory: .
       if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       run: rm -rf ./results/**/*.tar.gz
-
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
+    
+    - uses: ./.github/publish-ct-results
       if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       with:
-        name: relup-ci-results
-        path: ./results
-        compression-level: 9 
-        retention-days: 30
-
-    - name: Relup CI results
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
-      with:
-        check_name: Relup CI results
-        files: |
-          ./results/**/*.xml
+        test-name: relup-ci

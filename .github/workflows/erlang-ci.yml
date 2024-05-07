@@ -13,38 +13,42 @@ permissions:
   pull-requests: write
 
 jobs:
+  validation-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup-beam
+
+      - name: Run validation checks
+        working-directory: .
+        run: rebar3 do xref, dialyzer
+
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: erlef/setup-beam@v1
-      with:
-        otp-version: '26'
-        rebar3-version: '3.22.1'
     - uses: actions/checkout@v4
-    - name: Run validation checks
-      working-directory: .
-      run: rebar3 do xref, dialyzer
-    - name: Run unit tests
-      working-directory: .
-      run: |
-        mkdir results
-        rebar3 do ct --dir apps --verbose true --logdir ./results --label erlang-ci --cover true, cover -v
-    - name: Release can be built
+    - uses: ./.github/setup-beam
+
+    - name: Check that the release can be built
       working-directory: .
       run: rebar3 do release, tar
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: erlang-ci-results
-        path: ./results
-        compression-level: 9
-        retention-days: 30
-    - name: Erlang CI results
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: always()
-      with:
-        check_name: Erlang CI results
-        files: |
-          ./results/**/*.xml
+  
+  unit-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup-beam
+
+      - name: Run unit tests
+        working-directory: .
+        run: |
+          mkdir results
+          rebar3 do ct --dir apps --verbose true --logdir ./results --label erlang-ci --cover true, cover -v
+    
+      - uses: ./.github/publish-ct-results
+        if: always()
+        with:
+          test-name: erlang-ci
