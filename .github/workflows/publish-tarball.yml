@@ -11,14 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: erlef/setup-beam@v1
-        with:
-          otp-version: '26'
-          rebar3-version: '3.22.1'
-
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Necessary to get all the commits and tags
+      - uses: ./.github/setup-beam
 
       - name: Get latest release
         id: get-latest-release
@@ -70,7 +66,7 @@ jobs:
           path: _artifacts
           retention-days: 1
 
-  upload:
+  publish:
     name: Publish build artifacts
     needs: build
     runs-on: ubuntu-latest

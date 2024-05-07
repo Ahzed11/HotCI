@@ -11,29 +11,29 @@ permissions:
   pull-requests: write
 
 jobs:
-  versions:
+  upgrade-downgrade-test:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
-    - name: Check if a previous tags exists
-      run: |
-        LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
-        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
-
-    - uses: erlef/setup-beam@v1
-      with:
-        otp-version: '26'
-        rebar3-version: '3.22.1'
+    - uses: ./.github/setup-beam
 
     - name: Get release name
       working-directory: .
       run: |
         RELNAME=$(./scripts/get_release_name ./rebar.config)
         echo "RELNAME=$RELNAME" >> $GITHUB_ENV
+
+    - name: Check if a previous tags exists
+      run: |
+        LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
+        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+    
+    - name: Set check status
+      if: ${{env.LAST_TAG == ''}}
+      run: echo '### No previous version tag, skipped checks' >> $GITHUB_STEP_SUMMARY
 
     - name: Run validation checks and build releases
       working-directory: .
@@ -76,20 +76,8 @@ jobs:
       working-directory: .
       if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       run: rm -rf ./results/**/*.tar.gz
-
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
+    
+    - uses: ./.github/publish-ct-results
       if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       with:
-        name: relup-ci-results
-        path: ./results
-        compression-level: 9 
-        retention-days: 30
-
-    - name: Relup CI results
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
-      with:
-        check_name: Relup CI results
-        files: |
-          ./results/**/*.xml
+        test-name: relup-ci
