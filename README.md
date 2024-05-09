@@ -1,5 +1,9 @@
 # HotCI
 
+⚠️ Please contribute to this tool and my master thesis by participating to its evaluation: [HotCI evaluation form](https://forms.office.com/e/aaWPduS4Cb) ⚠️
+
+Thank you ! 🙏
+
 ## Overview
 
 The HotCI is designed to facilitate Continuous Integration (CI) and Continuous Deployment (CD) processes for Erlang/OTP releases.
@@ -33,37 +37,7 @@ This template assumes that you are familiar with [Erlang's official build tool, 
 
 ### New project
 
-`<project-name>` is the name of the project you want to create.
-
-1. Clone the repository:
-
-    ```sh
-    git clone git@github.com:Ahzed11/HotCI.git <project-name>
-    ```
-
-1. Create a new release with `rebar3`
-
-    ```sh
-    rebar3 new release <project-name>
-    ```
-
-1. Navigate into your new project
-
-    ```sh
-    cd <project-name>
-    ```
-
-1. Replace the word `release_name` present in `rebar.config` with the name of your project
-
-    ```sh
-    sed -i -e 's/release_name/<project-name>/g' rebar.config
-    ```
-
-1. Remove the old .git directory and initialize a new repositoy
-
-   ```sh
-    rm -rf .git && git init
-    ```
+See the [HotCI usage example](https://github.com/Ahzed11/HotCI-usage-example)
 
 ### Existing project
 
