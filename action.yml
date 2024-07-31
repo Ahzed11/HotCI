@@ -37,6 +37,7 @@ runs:
       run: |
         RELNAME=$($(ACTION_PATH)scripts/get_release_name ./rebar.config)
         echo "RELNAME=$RELNAME" >> $GITHUB_ENV
+      shell: bash
       env:
         ACTION_PATH: ${{ github.action_path }}
 
@@ -44,10 +45,12 @@ runs:
       run: |
         LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
         echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+      shell: bash
     
     - name: Verify Last Version Tag
       if: ${{env.LAST_TAG == ''}}
       run: echo '### No previous version tag, skipped checks' >> $GITHUB_STEP_SUMMARY
+      shell: bash
 
     - name: Run validation checks and build releases
       working-directory: .
@@ -66,6 +69,7 @@ runs:
         echo "OLD_TAR=$OLD" >> $GITHUB_ENV
         echo "NEW_TAR=$NEW" >> $GITHUB_ENV
         echo "IS_RESTART=$IS_RESTART" >> $
+      shell: bash
       env:
         ACTION_PATH: ${{ github.action_path }}
 
@@ -87,5 +91,6 @@ runs:
 
         mkdir results
         rebar3 ct --dir $TESTS_LOCATION --verbose true --config $(TESTS_LOCATION)/config.config --logdir ./results --label relup-ci
+      shell: bash
       env:
         TESTS_LOCATION: ${{ inputs.tests-location }}
