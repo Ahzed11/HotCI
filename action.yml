@@ -4,11 +4,11 @@ inputs:
   # TODO: Think about another way
   from-version:
     description: "Version from which to upgrade"
-    required: true
+    required: false
     default: ""
   to-version:
     description: "Version to which to upgrade"
-    required: true
+    required: false
     default: ""
   
   use-smoothver:
@@ -27,12 +27,11 @@ inputs:
   #   description: "Language used in the project: auto|erlang|elixir"
   #   required: false
   #   default: "auto"
-outputs:
+# outputs:
 
 runs:
   using: "composite"
   steps:
-    steps:
     - name: Get Release Name
       working-directory: .
       run: |
