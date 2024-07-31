@@ -1,37 +1,52 @@
-name: Relup CI
+name: "HotCI"
+description: ""
+inputs:
+  # TODO: Think about another way
+  from-version:
+    description: "Version from which to upgrade"
+    required: true
+    default: ""
+  to-version:
+    description: "Version to which to upgrade"
+    required: true
+    default: ""
+  
+  use-smoothver:
+    description: "Use the SmoothVer versioning scheme"
+    required: false
+    default: false
+  tests-location:
+    description: "Location of the hot code upgrade tests"
+    required: false
+    default: "./tests"
+  tests-results-location:
+    description: "Location of the hot code upgrade tests results"
+    required: false
+    default: "./results"
+  # language:
+  #   description: "Language used in the project: auto|erlang|elixir"
+  #   required: false
+  #   default: "auto"
+outputs:
 
-on:
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
-  issues: read
-  checks: write
-  pull-requests: write
-
-jobs:
-  upgrade-downgrade-test:
-    runs-on: ubuntu-latest
-
+runs:
+  using: "composite"
+  steps:
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - uses: ./.github/setup-beam
-
-    - name: Get release name
+    - name: Get Release Name
       working-directory: .
       run: |
-        RELNAME=$(./scripts/get_release_name ./rebar.config)
+        RELNAME=$($(ACTION_PATH)scripts/get_release_name ./rebar.config)
         echo "RELNAME=$RELNAME" >> $GITHUB_ENV
+      env:
+        ACTION_PATH: ${{ github.action_path }}
 
-    - name: Check if a previous tags exists
+    - name: Get The Previous Version Tag
       run: |
         LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
         echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
     
-    - name: Set check status
+    - name: Verify Last Version Tag
       if: ${{env.LAST_TAG == ''}}
       run: echo '### No previous version tag, skipped checks' >> $GITHUB_STEP_SUMMARY
 
@@ -39,7 +54,7 @@ jobs:
       working-directory: .
       if: ${{env.LAST_TAG != ''}}
       run: |
-        ./scripts/check_versions ${{env.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
+        $(ACTION_PATH)scripts/check_versions ${{env.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
         cat vsn.log
         cat vsn.log | awk '/Generated appup/ || /Compiling .*\.appup\.src/ { appup=1 }
                            /relup successfully created!/ { relup=1 }
@@ -51,33 +66,27 @@ jobs:
         IS_RESTART=$(cat vsn.log | awk '/RESTART version bumped, ignoring relup check./ {found=1; exit} END {if(found) print "true"; else print "false"}')
         echo "OLD_TAR=$OLD" >> $GITHUB_ENV
         echo "NEW_TAR=$NEW" >> $GITHUB_ENV
-        echo "IS_RESTART=$IS_RESTART" >> $GITHUB_ENV
+        echo "IS_RESTART=$IS_RESTART" >> $
+      env:
+        ACTION_PATH: ${{ github.action_path }}
 
       
     - name: Test upgrade and downgrade of the application
       working-directory: .
       if: ${{env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       run: |
-        mkdir relupci
-        mkdir relupci/releases/
-        cp "${{ env.OLD_TAR }}" relupci/releases/
-        cp "${{ env.NEW_TAR }}" relupci/releases/
+        mkdir hotci
+        mkdir hotci/releases/
+        cp "${{ env.OLD_TAR }}" hotci/releases/
+        cp "${{ env.NEW_TAR }}" hotci/releases/
 
         OLD_TAG=$(echo "${{ env.OLD_TAR }}"  | sed -nr 's/^.*([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz$/\1/p')
         NEW_TAG=$(echo "${{ env.NEW_TAR }}"  | sed -nr 's/^.*([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz$/\1/p')
 
-        RELEASE_DIR=$(readlink -f relupci/releases/)
+        RELEASE_DIR=$(readlink -f hotci/releases/)
         echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{env.RELNAME}}\"}.\n{release_dir, \"$RELEASE_DIR\"}." >> ./test/config.config
 
         mkdir results
-        rebar3 ct --dir ./test --verbose true --config ./test/config.config --logdir ./results --label relup-ci
-    
-    - name: Remove releases to save space
-      working-directory: .
-      if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
-      run: rm -rf ./results/**/*.tar.gz
-    
-    - uses: ./.github/publish-ct-results
-      if: ${{ always() && env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
-      with:
-        test-name: relup-ci
+        rebar3 ct --dir $TESTS_LOCATION --verbose true --config $(TESTS_LOCATION)/config.config --logdir ./results --label relup-ci
+      env:
+        TESTS_LOCATION: ${{ inputs.tests-location }}
