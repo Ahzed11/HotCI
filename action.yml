@@ -69,19 +69,17 @@ runs:
       working-directory: .
       if: ${{env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       run: |
-        mkdir hotci
-        mkdir hotci/releases/
-        cp "${{ env.OLD_TAR }}" hotci/releases/
-        cp "${{ env.NEW_TAR }}" hotci/releases/
+        RELEASES_DIR="${{ runner.temp }}/releases"
+        mkdir $RELEASES_DIR
+        cp "${{ env.OLD_TAR }}" $RELEASES_DIR
+        cp "${{ env.NEW_TAR }}" $RELEASES_DIR
 
         OLD_TAG=$(echo "${{ env.OLD_TAR }}"  | sed -nr 's/^.*([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz$/\1/p')
         NEW_TAG=$(echo "${{ env.NEW_TAR }}"  | sed -nr 's/^.*([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz$/\1/p')
 
-        RELEASE_DIR=$(readlink -f hotci/releases/)
-
         CONFIG_DIR="${{ runner.temp }}/config"
         mkdir $CONFIG_DIR
-        echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{env.RELNAME}}\"}.\n{release_dir, \"$RELEASE_DIR\"}." >> $CONFIG_DIR/config.config
+        echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{env.RELNAME}}\"}.\n{release_dir, \"$RELEASES_DIR\"}." >> $CONFIG_DIR/config.config
 
         RESULTS_DIR="${{ runner.temp }}/results"
         mkdir $RESULTS_DIR
