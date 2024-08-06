@@ -77,7 +77,7 @@ runs:
         IS_RESTART=$(cat vsn.log | awk '/RESTART version bumped, ignoring relup check./ {found=1; exit} END {if(found) print "true"; else print "false"}')
         echo "OLD_TAR=$OLD" >> $GITHUB_ENV
         echo "NEW_TAR=$NEW" >> $GITHUB_ENV
-        echo "IS_RESTART=$IS_RESTART" >> $
+        echo "IS_RESTART=$IS_RESTART" >> $GITHUB_ENV
       shell: bash
 
       
