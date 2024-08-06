@@ -6,10 +6,10 @@ inputs:
     description: "Version from which to upgrade"
     required: false
     default: ""
-  to-version:
-    description: "Version to which to upgrade"
-    required: false
-    default: ""
+  # to-version:
+  #   description: "Version to which to upgrade"
+  #   required: false
+  #   default: ""
   
   use-smoothver:
     description: "Use the SmoothVer versioning scheme"
@@ -24,9 +24,10 @@ inputs:
     required: false
     default: "./results"
   tests-label:
-    description: "Label for the tests"
+    description: "Label for the Common Test test suites"
     required: false
     default: "HotCI"
+  
   # language:
   #   description: "Language used in the project: auto|erlang|elixir"
   #   required: false
@@ -44,21 +45,27 @@ runs:
       shell: bash
 
     - name: Get The Previous Version Tag
+      if: ${{inputs.from-version == ''}}
       run: |
         LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
         echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
       shell: bash
     
     - name: Verify Last Version Tag
-      if: ${{env.LAST_TAG == ''}}
+      if: ${{inputs.from-version == '' && env.LAST_TAG == ''}}
       run: echo '### No previous version tag, skipped checks' >> $GITHUB_STEP_SUMMARY
+      shell: bash
+    
+    - name: Set Last Tag Env Variable To "From Version"
+      if: ${{inputs.from-version != ''}}
+      run: echo "LAST_TAG=${{ inputs.from-version }}" >> $GITHUB_ENV
       shell: bash
 
     - name: Run validation checks and build releases
       working-directory: .
       if: ${{env.LAST_TAG != ''}}
       run: |
-        ${{ github.action_path }}/scripts/check_versions ${{env.RELNAME}} $(/usr/bin/git log -1 --format='%H') > vsn.log
+        ${{ github.action_path }}/scripts/check_versions ${{env.RELNAME}} $(/usr/bin/git log -1 --format='%H') ${{env.LAST_TAG}} > vsn.log
         cat vsn.log
         cat vsn.log | awk '/Generated appup/ || /Compiling .*\.appup\.src/ { appup=1 }
                            /relup successfully created!/ { relup=1 }
