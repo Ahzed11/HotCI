@@ -1,16 +1,10 @@
 name: "HotCI"
 description: ""
 inputs:
-  # TODO: Think about another way
   from-version:
     description: "Version from which to upgrade"
     required: false
-    default: ""
-  # to-version:
-  #   description: "Version to which to upgrade"
-  #   required: false
-  #   default: ""
-  
+    default: ""  
   use-smoothver:
     description: "Use the SmoothVer versioning scheme"
     required: false
@@ -19,21 +13,10 @@ inputs:
     description: "Location of the hot code upgrade tests"
     required: false
     default: "./tests"
-  tests-results-location:
-    description: "Location of the hot code upgrade tests results"
-    required: false
-    default: "./results"
   tests-label:
     description: "Label for the Common Test test suites"
     required: false
     default: "HotCI"
-  
-  # language:
-  #   description: "Language used in the project: auto|erlang|elixir"
-  #   required: false
-  #   default: "auto"
-# outputs:
-
 runs:
   using: "composite"
   steps:
@@ -95,8 +78,12 @@ runs:
         NEW_TAG=$(echo "${{ env.NEW_TAR }}"  | sed -nr 's/^.*([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz$/\1/p')
 
         RELEASE_DIR=$(readlink -f hotci/releases/)
-        echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{env.RELNAME}}\"}.\n{release_dir, \"$RELEASE_DIR\"}." >> ${{ inputs.tests-location }}/config.config
 
-        mkdir results
-        rebar3 ct --dir ${{ inputs.tests-location }} --verbose true --config ${{ inputs.tests-location }}/config.config --logdir ${{ inputs.tests-outputs-location }} --label ${{ inputs.tests-label }}
+        CONFIG_DIR="${{ runner.temp }}/config"
+        mkdir $CONFIG_DIR
+        echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{env.RELNAME}}\"}.\n{release_dir, \"$RELEASE_DIR\"}." >> $CONFIG_DIR/config.config
+
+        RESULTS_DIR="${{ runner.temp }}/results"
+        mkdir $RESULTS_DIR
+        rebar3 ct --dir ${{ inputs.tests-location }} --verbose true --config $CONFIG_DIR/config.config --logdir $RESULTS_DIR --label ${{ inputs.tests-label }}
       shell: bash
