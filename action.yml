@@ -47,6 +47,7 @@ runs:
     - name: Get The Previous Version Tag
       if: ${{inputs.from-version == ''}}
       run: |
+        echo ${{ inputs.from-version }}
         LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
         echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
       shell: bash
