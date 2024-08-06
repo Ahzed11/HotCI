@@ -14,7 +14,7 @@ main([Relname, Branch]) ->
     "v"++_LastVsn = LastTag = string:trim(os:cmd("git tag -l --sort=committerdate 'v*.*.*' | tail -n 1")),
     main([Relname, Branch, LastTag]);
 
-main([Relname, Branch, PrevTag])
+main([Relname, Branch, PrevTag]) ->
     io:format("switching to ~ts and back to ~ts~n", [PrevTag, Branch]),
     io:format("~p: ~ts~n", [?LINE, os:cmd("git checkout "++PrevTag)]),
     io:format("~p: ~ts~n", [?LINE, os:cmd("rebar3 do clean -a, release, tar")]),
