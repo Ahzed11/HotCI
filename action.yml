@@ -8,7 +8,7 @@ inputs:
   tests-location:
     description: "Location of the hot code upgrade tests"
     required: false
-    default: "./tests"
+    default: "./relup_tests"
   tests-label:
     description: "Label for the Common Test test suites"
     required: false
