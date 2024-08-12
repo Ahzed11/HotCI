@@ -5,14 +5,6 @@ inputs:
     description: "Tag from which to upgrade"
     required: false
     default: ""
-  tests-location:
-    description: "Location of the hot code upgrade tests"
-    required: false
-    default: "./relup_tests"
-  tests-label:
-    description: "Label for the Common Test test suites"
-    required: false
-    default: "HotCI"
 runs:
   using: "composite"
   steps:
@@ -79,5 +71,5 @@ runs:
 
         RESULTS_DIR="$BASE_DIR/results"
         mkdir $RESULTS_DIR
-        rebar3 ct --dir ${{ inputs.tests-location }} --verbose true --config $CONFIG_DIR/config.config --logdir $RESULTS_DIR --label ${{ inputs.tests-label }}
+        rebar3 as hotci ct --config $CONFIG_DIR/config.config
       shell: bash
