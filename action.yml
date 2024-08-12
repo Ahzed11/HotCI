@@ -1,14 +1,10 @@
 name: "HotCI"
 description: ""
 inputs:
-  from-version:
-    description: "Version from which to upgrade"
+  from-tag:
+    description: "Tag from which to upgrade"
     required: false
-    default: ""  
-  use-smoothver:
-    description: "Use the SmoothVer versioning scheme"
-    required: false
-    default: false
+    default: ""
   tests-location:
     description: "Location of the hot code upgrade tests"
     required: false
@@ -27,61 +23,61 @@ runs:
         echo "RELNAME=$RELNAME" >> $GITHUB_ENV
       shell: bash
 
-    - name: Get The Previous Version Tag
-      if: ${{inputs.from-version == ''}}
+    - name: Set The From Version Tag
       run: |
-        echo ${{ inputs.from-version }}
-        LAST_TAG=$(git tag -l --sort=committerdate 'v*.*.*' | tail -n 1)
-        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+        if [ -n "$INPUT_FROM_TAG" ]; then
+          echo "FROM_TAG=$INPUT_FROM_TAG" >> $GITHUB_ENV
+        else
+          FROM_TAG=$(git tag -l --sort=committerdate '*.*.*' | tail -n 1)
+          echo "::debug::FROM_TAG: $FROM_TAG"
+          echo "FROM_TAG=$FROM_TAG" >> $GITHUB_ENV
+        fi
       shell: bash
+      env:
+        INPUT_FROM_TAG: ${{ inputs.from-tag }}
     
-    - name: Verify Last Version Tag
-      if: ${{inputs.from-version == '' && env.LAST_TAG == ''}}
-      run: echo '### No previous version tag, skipped checks' >> $GITHUB_STEP_SUMMARY
-      shell: bash
-    
-    - name: Set Last Tag Env Variable To "From Version"
-      if: ${{inputs.from-version != ''}}
-      run: echo "LAST_TAG=${{ inputs.from-version }}" >> $GITHUB_ENV
+    - name: Check From Tag
+      if: ${{ env.FROM_TAG == '' }}
+      run: |
+        echo "::error title=Invalid From Tag::There is either no version tag in this repository or the from-tag parameter is blank."
+        exit 1
       shell: bash
 
     - name: Run validation checks and build releases
       working-directory: .
-      if: ${{env.LAST_TAG != ''}}
       run: |
-        ${{ github.action_path }}/scripts/check_versions ${{env.RELNAME}} $(/usr/bin/git log -1 --format='%H') ${{env.LAST_TAG}} > vsn.log
+        ${{ github.action_path }}/scripts/check_versions ${{ env.RELNAME }} $(/usr/bin/git log -1 --format='%H') ${{ env.FROM_TAG }} > vsn.log
         cat vsn.log
         cat vsn.log | awk '/Generated appup/ || /Compiling .*\.appup\.src/ { appup=1 }
                            /relup successfully created!/ { relup=1 }
-                           /RESTART version bumped, ignoring relup check./ { restart=1 }
-                           END { if (!appup) { print "appup missing"; exit 1}
-                                 if (!relup && !restart) { print "relup missing"; exit 1} }'
+                           END { if (!appup) { echo "::error title=Missing appup"; exit 1 }
+                                 if (!relup) { echo "::error title=Missing relup"; exit 1} }'
         OLD=$(cat vsn.log | awk '/OLD:/ {print $2}')
         NEW=$(cat vsn.log | awk '/NEW:/ {print $2}')
-        IS_RESTART=$(cat vsn.log | awk '/RESTART version bumped, ignoring relup check./ {found=1; exit} END {if(found) print "true"; else print "false"}')
+
         echo "OLD_TAR=$OLD" >> $GITHUB_ENV
         echo "NEW_TAR=$NEW" >> $GITHUB_ENV
-        echo "IS_RESTART=$IS_RESTART" >> $GITHUB_ENV
       shell: bash
 
-      
     - name: Test upgrade and downgrade of the application
       working-directory: .
-      if: ${{env.LAST_TAG != '' && env.IS_RESTART == 'false'}}
       run: |
-        RELEASES_DIR="${{ runner.temp }}/releases"
+        BASE_DIR="${{ runner.temp }}/.hotci"
+        mkdir $BASE_DIR
+
+        RELEASES_DIR="$BASE_DIR/releases"
         mkdir $RELEASES_DIR
         cp "${{ env.OLD_TAR }}" $RELEASES_DIR
         cp "${{ env.NEW_TAR }}" $RELEASES_DIR
 
-        OLD_TAG=$(echo "${{ env.OLD_TAR }}"  | sed -nr 's/^.*([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz$/\1/p')
-        NEW_TAG=$(echo "${{ env.NEW_TAR }}"  | sed -nr 's/^.*([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz$/\1/p')
+        OLD_TAG=$(echo "${{ env.OLD_TAR }}" | sed -nr 's/^.*\/\${{ env.RELNAME }}-(.+)\.tar\.gz$/\1/p')
+        NEW_TAG=$(echo "${{ env.NEW_TAR }}" | sed -nr 's/^.*\/\${{ env.RELNAME }}-(.+)\.tar\.gz$/\1/p')
 
-        CONFIG_DIR="${{ runner.temp }}/config"
+        CONFIG_DIR="$BASE_DIR/config"
         mkdir $CONFIG_DIR
-        echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{env.RELNAME}}\"}.\n{release_dir, \"$RELEASES_DIR\"}." >> $CONFIG_DIR/config.config
+        echo -e "{old_version, \"$OLD_TAG\"}.\n{new_version, \"$NEW_TAG\"}.\n{release_name, \"${{ env.RELNAME }}\"}.\n{release_dir, \"$RELEASES_DIR\"}." >> $CONFIG_DIR/config.config
 
-        RESULTS_DIR="${{ runner.temp }}/results"
+        RESULTS_DIR="$BASE_DIR/results"
         mkdir $RESULTS_DIR
         rebar3 ct --dir ${{ inputs.tests-location }} --verbose true --config $CONFIG_DIR/config.config --logdir $RESULTS_DIR --label ${{ inputs.tests-label }}
       shell: bash

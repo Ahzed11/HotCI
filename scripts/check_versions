@@ -26,7 +26,7 @@ main([Relname, Branch, PrevTag]) ->
         2 ->
             ok;
         N ->
-            io:format("Expected two find two releases, found ~p~n"
+            io:format("Expected to find two releases, found ~p~n"
                       "The current release likely has the same version as "
                       "an older one.~n"
                       "Bump up the release version to generate relups.~n",
@@ -35,17 +35,6 @@ main([Relname, Branch, PrevTag]) ->
     end,
     Releases = [Content || Path <- RelFiles,
                            {ok, [Content]} <- [file:consult(Path)]],
-    case [{ERTS, to_vsn(VsnStr)} || {release, {_Name, VsnStr}, ERTS, _Apps} <- Releases] of
-        [{_,{V1,_,_}},{_,{V2,_,_}}] when V1 =/= V2 ->
-            io:format("RESTART version bumped, ignoring relup check.~n", []),
-            init:stop(0);
-        [{ERTS,_}, {ERTS,_}] ->
-            ok;
-        [{_, {V1,_,_}}, {_, {V1,_,_}}] ->
-            io:format("The ERTS version changed; the release version should "
-                      "be bumped accordingly (RESTART+1.RELUP.RELOAD)~n", []),
-            init:stop(1)
-    end,
 
     ChangedFiles = [Sub
                     || Path <- diff_lines(os:cmd("git diff "++PrevTag)),
