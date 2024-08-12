@@ -71,5 +71,5 @@ runs:
 
         RESULTS_DIR="$BASE_DIR/results"
         mkdir $RESULTS_DIR
-        rebar3 as hotci ct --config $CONFIG_DIR/config.config
+        rebar3 as hotci ct --config $CONFIG_DIR/config.config --logdir $RESULTS_DIR
       shell: bash
